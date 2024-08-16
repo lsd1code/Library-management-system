@@ -10,6 +10,9 @@ import library_management_system.book.BookDAOImpl;
 import library_management_system.book_author.BookAuthorDAO;
 import library_management_system.book_author.BookAuthorDAOImpl;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -18,27 +21,23 @@ import java.util.Scanner;
 import java.util.UUID;
 
 public class Main {
-  private static Scanner scn = null;
   private static final BookDAO bookDAO = new BookDAOImpl();
   private static final AuthorDAO authorDAO = new AuthorDAOImpl();
   private static final BookAuthorDAO bookAuthorDAO = new BookAuthorDAOImpl();
 
-
   public static void main(String[] args) throws Exception {
-    var authors = bookAuthorDAO.getAll(UUID.fromString("88336582-d4c0-42fc-af38-e17b4ea305a5"));
-
-    authors.forEach(System.out::println);
+    addBook();
   }
 
-  private static String getString(String prompt) {
-    scn = new Scanner(System.in);
+  private static String getString(String prompt) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     System.out.print(prompt + ": ");
-    return scn.next();
+    return reader.readLine();
   }
 
   private static int getInt(String prompt) {
-    scn = new Scanner(System.in);
+    Scanner scn = new Scanner(System.in);
 
     System.out.print(prompt + ": ");
     return scn.nextInt();
@@ -46,7 +45,6 @@ public class Main {
 
   public static void addBook() throws SQLException, Exception{
     UUID bookId = UUID.randomUUID();
-
     String title = getString("title");
 
     System.out.println("Enter book publication date: ");
@@ -54,8 +52,6 @@ public class Main {
     int month = getInt("month");
     int year = getInt("year");
     LocalDate publicationDate = LocalDate.of(year, month, day);
-
-    int copiesOwned = getInt("Number of copies");
 
     BookCategory[] bc = BookCategory.values();
 
@@ -78,9 +74,9 @@ public class Main {
       }
     }
 
-    Book book = new Book(bookId, title, publicationDate, copiesOwned, category);
+    int copiesOwned = getInt("Number of copies");
 
-    bookDAO.insert(book);
+    bookDAO.insert(new Book(bookId, title, publicationDate, copiesOwned, category));
 
     List<Author> authors = new ArrayList<>();
 
@@ -105,16 +101,10 @@ public class Main {
     });
   }
 
-  public static Author addAuthor() {
-    scn = new Scanner(System.in);
-
+  public static Author addAuthor() throws IOException {
     UUID authorId = UUID.randomUUID();
-
-    System.out.print("Firstname: ");
-    String firstname = scn.next();
-
-    System.out.print("Lastname: ");
-    String lastname = scn.next();
+    String firstname = getString("Firstname");
+    String lastname = getString("Lastname");
 
     return new Author(authorId, firstname, lastname);
   }
