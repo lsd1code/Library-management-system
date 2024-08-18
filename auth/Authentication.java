@@ -2,6 +2,9 @@ package library_management_system.auth;
 
 import library_management_system.member.*;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
@@ -13,8 +16,10 @@ public class Authentication {
 
   public Authentication() {}
 
-  public static Member register() {
+  public static Member register() throws IOException, SQLException {
+    MemberDAO memberDAO = new MemberDAOImpl();
     Member member;
+
     scanner = new Scanner(System.in);
 
     int role;
@@ -44,15 +49,18 @@ public class Authentication {
       }
     }
 
+    memberDAO.insert(member);
+
     return member;
   }
 
-  public static Member login() throws SQLException {
+  public static Member login() throws SQLException, IOException {
     MemberDAO memberDAO = new MemberDAOImpl();
 
-    scanner = new Scanner(System.in);
-
+    Member member;
     int role;
+
+    scanner = new Scanner(System.in);
 
     try {
       System.out.print("Choose your role. [1. Admin, 2. Member]: ");
@@ -60,8 +68,6 @@ public class Authentication {
     } catch(InputMismatchException ime) {
       return login();
     }
-
-    Member member = null;
 
     switch (role) {
       case 1 -> {
@@ -73,14 +79,12 @@ public class Authentication {
           System.exit(1);
         }
 
-        System.out.print("Enter your Library Number: ");
-        String libraryNum = scanner.next();
+        String libraryNum = getString("Enter your Library Number");
 
         member = memberDAO.get(libraryNum);
       }
       case 2 -> {
-        System.out.print("Enter your Library Number: ");
-        String libraryNum = scanner.next();
+        String libraryNum = getString("Enter your Library Number");
 
         member = memberDAO.get(libraryNum);
       }
@@ -92,19 +96,11 @@ public class Authentication {
     return member;
   }
 
-  private static Member generateMember(MemberRole role) {
-    scanner = new Scanner(System.in);
-
-    System.out.print("Firstname: ");
-    String firstName = scanner.next();
-
-    System.out.print("Lastname: ");
-    String lastName = scanner.next();
-
+  private static Member generateMember(MemberRole role) throws IOException {
+    String firstName = getString("Firstname");
+    String lastName = getString("Lastname");
     LocalDate joinedDate = LocalDate.now();
-
     ActiveStatus activeStatus = ActiveStatus.ACTIVE;
-
     String libraryNumber = generateLibraryNumber(role);
 
     return new Member(0, firstName, lastName, joinedDate, activeStatus, role, libraryNumber);
@@ -123,7 +119,13 @@ public class Authentication {
       int randomNum = (int) ((Math.random() * 10) + 1);
       libraryNumber.append(randomNum);
     }
-
     return libraryNumber.toString();
+  }
+
+  private static String getString(String prompt) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+    System.out.print(prompt + ": ");
+    return reader.readLine();
   }
 }

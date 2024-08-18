@@ -1,5 +1,6 @@
 package library_management_system;
 
+import library_management_system.auth.Authentication;
 import library_management_system.author.Author;
 import library_management_system.author.AuthorDAO;
 import library_management_system.author.AuthorDAOImpl;
@@ -26,21 +27,11 @@ public class Main {
   private static final BookAuthorDAO bookAuthorDAO = new BookAuthorDAOImpl();
 
   public static void main(String[] args) throws Exception {
-    addBook();
+    mainMenu();
   }
 
-  private static String getString(String prompt) throws IOException {
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-    System.out.print(prompt + ": ");
-    return reader.readLine();
-  }
-
-  private static int getInt(String prompt) {
-    Scanner scn = new Scanner(System.in);
-
-    System.out.print(prompt + ": ");
-    return scn.nextInt();
+  public static void mainMenu() {
+    System.out.println("============= Library Management System =============");
   }
 
   public static void addBook() throws SQLException, Exception{
@@ -107,5 +98,19 @@ public class Main {
     String lastname = getString("Lastname");
 
     return new Author(authorId, firstname, lastname);
+  }
+
+  private static String getString(String prompt) throws IOException {
+    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+
+    System.out.print(prompt + ": ");
+    return reader.readLine();
+  }
+
+  private static int getInt(String prompt) {
+    Scanner scn = new Scanner(System.in);
+
+    System.out.print(prompt + ": ");
+    return scn.nextInt();
   }
 }
